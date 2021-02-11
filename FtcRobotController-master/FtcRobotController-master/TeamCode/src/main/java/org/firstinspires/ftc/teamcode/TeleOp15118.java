@@ -58,7 +58,7 @@ public class TeleOp15118 extends LinearOpMode
         intakeSweeper = hardwareMap.get(Servo.class, "intakeSweeper");
         System.out.println(intakeSweeper.getPosition());
         telemetry.addLine("Intake Sweeper Position: " + intakeSweeper.getPosition());
-        telemetry.update()
+        telemetry.update();
         //CHANGE INTAKE SWEEPER RANGE HERE, CAN ALSO CHANGE VARIABLE OF SET POSITION IN INTAKESWEEPER() METHOD
         //maxRange = 50
         //intakeSweeper.scaleRange(0, (maxRange/270))
