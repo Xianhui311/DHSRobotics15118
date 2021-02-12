@@ -55,7 +55,7 @@ public class TeleOp15118 extends LinearOpMode
         intake = hardwareMap.get(DcMotor.class, "intake");
         outtake = hardwareMap.get(DcMotor.class, "outtake");
 
-        intakeSweeper = hardwareMap.get(Servo.class, "intakeSweeper");
+        intakeSweeper = hardwareMap.get(Servo.class, "intake_sweeper");
         System.out.println(intakeSweeper.getPosition());
         telemetry.addLine("Intake Sweeper Position: " + intakeSweeper.getPosition());
         telemetry.update();
