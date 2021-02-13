@@ -5,183 +5,130 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
+
 
 @TeleOp(name = "TeleOp 15118", group = "15118")
 public class TeleOp15118 extends LinearOpMode
 {
 
     DcMotor fl, fr, bl, br, intake, outtake;
-    Servo intakeSweeper;
-    
+    Servo intakeSweeper, intakeRaiser;
+
+    boolean raised = false;
+
     @Override
     public void runOpMode() throws InterruptedException
     {
         initialize();
 
         waitForStart();
-        Runnable checkP1 = new Runnable() {
-            @Override
-            public void run() {
-                checkP1();
-            }
-        };
-        Runnable checkP2 = new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        };
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-        executor.scheduleAtFixedRate(checkP1, 0, 1, TimeUnit.MILLISECONDS);
-        executor.scheduleAtFixedRate(checkP2, 0, 1, TimeUnit.MILLISECONDS);
-        while(opModeIsActive());
+        while(opModeIsActive())
+        {
+            checkP1();
+        }
     }
 
-    private void temp()
-    {
-        System.out.println(intakeSweeper.getPosition());
-    }
-
-    private void initialize()
+    public void initialize()
     {
         fl = hardwareMap.get(DcMotor.class, "front_left");
         fr = hardwareMap.get(DcMotor.class, "front_right");
         bl = hardwareMap.get(DcMotor.class, "back_left");
         br = hardwareMap.get(DcMotor.class, "back_right");
-        
+
         intake = hardwareMap.get(DcMotor.class, "intake");
         outtake = hardwareMap.get(DcMotor.class, "outtake");
 
+        intakeRaiser = hardwareMap.get(Servo.class, "intake_raiser");
+        intakeRaiser.scaleRange(intakeRaiser.getPosition(), intakeRaiser.getPosition() + 0.05);
+
         intakeSweeper = hardwareMap.get(Servo.class, "intake_sweeper");
-        System.out.println(intakeSweeper.getPosition());
-        telemetry.addLine("Intake Sweeper Position: " + intakeSweeper.getPosition());
-        telemetry.update();
-        //CHANGE INTAKE SWEEPER RANGE HERE, CAN ALSO CHANGE VARIABLE OF SET POSITION IN INTAKESWEEPER() METHOD
-        //maxRange = 50
-        //intakeSweeper.scaleRange(0, (maxRange/270))
+        intakeSweeper.scaleRange(intakeSweeper.getPosition(), intakeSweeper.getPosition() + 0.05);
     }
 
-    private void move(double strafe, double forward, double turn)
+    public void move(double strafe, double forward, double turn)
     {
-        fl.setPower(forward + turn + strafe);
-        fr.setPower(forward - turn - strafe);
-        bl.setPower(forward + turn - strafe);
-        br.setPower((forward - turn + strafe)*-1);
+        while(gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)
+        {
+            fl.setPower(forward + turn + strafe);
+            fr.setPower(forward - turn - strafe);
+            bl.setPower(forward + turn - strafe);
+            br.setPower((forward - turn + strafe) * -1);
+        }
+        fl.setPower(0);
+        fr.setPower(0);
+        bl.setPower(0);
+        br.setPower(0);
     }
-    
-    private void intake(boolean forwards, boolean backwards)
+
+    public void intake()
     {
         //CHANGE THE POWER OF THE INTAKE HERE
-        float power = 0;
-        if(forwards)
+        if(gamepad1.right_trigger > 0)
         {
-            //FORWARDS POWER
-            power = 1;
+            intake.setPower(gamepad1.left_trigger);
         }
-        if(backwards)
+        if(gamepad1.left_trigger > 0)
         {
-            //BACKWARDS POWER
-            power = -1;
+            intake.setPower(gamepad1.left_trigger * -1);
         }
-        intake.setPower(power);
+        intake.setPower(0);
     }
-    
-    private void outtake(float power)
+
+    public void outtake()
     {
         //REMOVE BELOW LINE TO ADD VARIABLE POWER
-        power = 1;
-        outtake.setPower(power);
+        while (gamepad1.right_bumper) {
+            outtake.setPower(1);
+        }
+        outtake.setPower(0);
     }
-    
-    private void intakeSweep(boolean sweep)
+
+    public void intakeSweep()
     {
         intakeSweeper.setPosition(1);
         intakeSweeper.setPosition(0);
     }
+    public void intakeRaise()
+    {
+        if(raised)
+        {
+            intakeRaiser.setPosition(0);
+            raised = false;
+        } else
+        {
+            intakeRaiser.setPosition(1);
+            raised = true;
+        }
+    }
 
-    private void checkP1()
+    public void checkP1()
     {
         if(!gamepad1.atRest())
         {
-            doTask("move");
+            move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
         if(gamepad1.right_bumper || gamepad1.left_bumper)
         {
-            doTask("intake");
+            outtake();
         }
-        if(gamepad1.right_trigger != 0)
+        if(gamepad1.right_trigger != 0 || gamepad1.left_trigger != 0)
         {
-            doTask("outtake");
-        }
-        if(gamepad1.x)
-        {
-            doTask("intakeSweep");
+            intake();
         }
         if(gamepad1.a)
         {
-            doTask("test");
+            intakeSweep();
+        }
+        if(gamepad1.x)
+        {
+            intakeRaise();
         }
     }
-    private void checkP2()
+    public void checkP2()
     {
 
     }
 
-    private Thread doTask(String taskName)
-    {
-        Thread t;
-        Runnable r = null;
-        if(taskName.equals("move"))
-        {
-            r = new Runnable() {
-                @Override
-                public void run() {
-                    move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-                }
-            };
-        }
-        if(taskName.equals("intake"))
-        {
-            r = new Runnable() {
-                @Override
-                public void run() {
-                    intake(gamepad1.right_bumper, gamepad1.left_bumper);
-                }
-            };
-        }
-        if(taskName.equals("outtake"))
-        {
-            r = new Runnable() {
-                @Override
-                public void run() {
-                    outtake(gamepad1.right_trigger);
-                }
-            };
-        }
-        if(taskName.equals("intakeSweep"))
-        {
-            r = new Runnable() {
-                @Override
-                public void run() {
-                    intakeSweep(gamepad1.x);
-                }
-            };
-        }
-        if(taskName.equals("test"))
-        {
-            r = new Runnable() {
-                @Override
-                public void run() {
-                    temp();
-                }
-            };
-        }
-        t = new Thread(r);
-        t.setPriority(Thread.MAX_PRIORITY);
-        t.start();
-        return t;
-    }
+
 }
