@@ -15,7 +15,12 @@ public class AutonomousOp15118 extends TeleOp15118 {
     public void runOpMode() throws InterruptedException {
         super.initialize();
         timer.reset();
-        while(timer.seconds() <= 1.5)
+        //Change seconds in timer
+        park();
+    }
+    public void park()
+    {
+        while(timer.seconds() <= 1)
         {
             super.move(0, 1, 0);
         }

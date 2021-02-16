@@ -3,10 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
-
 
 @TeleOp(name = "TeleOp 15118", group = "15118")
 public class TeleOp15118 extends LinearOpMode
@@ -25,7 +23,39 @@ public class TeleOp15118 extends LinearOpMode
         waitForStart();
         while(opModeIsActive())
         {
-            checkP1();
+            if(gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)
+            {
+                move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            }
+            if(gamepad1.right_bumper || gamepad1.left_bumper)
+            {
+                outtake();
+            } else
+            {
+                outtake.setPower(0);
+            }
+            if(gamepad1.right_trigger != 0 || gamepad1.left_trigger != 0)
+            {
+                intake();
+            }
+            if(gamepad1.a)
+            {
+                intakeSweeper.setPosition(-1);
+                sleep(250);
+                intakeSweeper.setPosition(0.5);
+            }
+            if(gamepad1.x)
+            {
+                if(raised)
+                {
+                    intakeRaiser.setPosition(-1);
+                    raised = false;
+                } else
+                {
+                    intakeRaiser.setPosition(1);
+                    raised = true;
+                }
+            }
         }
     }
 
@@ -40,10 +70,9 @@ public class TeleOp15118 extends LinearOpMode
         outtake = hardwareMap.get(DcMotor.class, "outtake");
 
         intakeRaiser = hardwareMap.get(Servo.class, "intake_raiser");
-        intakeRaiser.scaleRange(intakeRaiser.getPosition(), intakeRaiser.getPosition() + 0.05);
-
         intakeSweeper = hardwareMap.get(Servo.class, "intake_sweeper");
-        intakeSweeper.scaleRange(intakeSweeper.getPosition(), intakeSweeper.getPosition() + 0.05);
+
+        br.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void move(double strafe, double forward, double turn)
@@ -53,7 +82,7 @@ public class TeleOp15118 extends LinearOpMode
             fl.setPower(forward + turn + strafe);
             fr.setPower(forward - turn - strafe);
             bl.setPower(forward + turn - strafe);
-            br.setPower((forward - turn + strafe) * -1);
+            br.setPower(forward - turn + strafe);
         }
         fl.setPower(0);
         fr.setPower(0);
@@ -66,69 +95,20 @@ public class TeleOp15118 extends LinearOpMode
         //CHANGE THE POWER OF THE INTAKE HERE
         if(gamepad1.right_trigger > 0)
         {
-            intake.setPower(gamepad1.left_trigger);
+            intake.setPower(gamepad1.right_trigger);
         }
         if(gamepad1.left_trigger > 0)
         {
             intake.setPower(gamepad1.left_trigger * -1);
         }
-        intake.setPower(0);
+        else
+        {
+            intake.setPower(0);
+        }
     }
 
     public void outtake()
     {
-        //REMOVE BELOW LINE TO ADD VARIABLE POWER
-        while (gamepad1.right_bumper) {
-            outtake.setPower(1);
-        }
-        outtake.setPower(0);
+        outtake.setPower(1);
     }
-
-    public void intakeSweep()
-    {
-        intakeSweeper.setPosition(1);
-        intakeSweeper.setPosition(0);
-    }
-    public void intakeRaise()
-    {
-        if(raised)
-        {
-            intakeRaiser.setPosition(0);
-            raised = false;
-        } else
-        {
-            intakeRaiser.setPosition(1);
-            raised = true;
-        }
-    }
-
-    public void checkP1()
-    {
-        if(!gamepad1.atRest())
-        {
-            move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-        }
-        if(gamepad1.right_bumper || gamepad1.left_bumper)
-        {
-            outtake();
-        }
-        if(gamepad1.right_trigger != 0 || gamepad1.left_trigger != 0)
-        {
-            intake();
-        }
-        if(gamepad1.a)
-        {
-            intakeSweep();
-        }
-        if(gamepad1.x)
-        {
-            intakeRaise();
-        }
-    }
-    public void checkP2()
-    {
-
-    }
-
-
 }
