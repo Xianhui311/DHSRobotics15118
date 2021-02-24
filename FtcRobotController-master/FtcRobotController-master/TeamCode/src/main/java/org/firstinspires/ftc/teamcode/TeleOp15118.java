@@ -125,11 +125,11 @@ public class TeleOp15118 extends LinearOpMode
         //CHANGE THE POWER OF THE INTAKE HERE
         if(gamepad1.right_trigger > 0)
         {
-            intake.setPower(gamepad1.right_trigger);
+            intake.setPower(1);
         }
         if(gamepad1.left_trigger > 0)
         {
-            intake.setPower(gamepad1.left_trigger * -1);
+            intake.setPower(-1);
         }
         else
         {
