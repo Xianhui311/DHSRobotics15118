@@ -14,6 +14,7 @@ public class TeleOp15118 extends LinearOpMode
     Servo intakeSweeper, intakeRaiser;
 
     boolean raised = false;
+    boolean clicked = false;
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -27,10 +28,32 @@ public class TeleOp15118 extends LinearOpMode
             {
                 move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             }
-            if(gamepad1.right_bumper || gamepad1.left_bumper)
+            if(gamepad1.dpad_up)
             {
-                outtake();
-            } else
+                move(0, -(2/3), 0);
+            }
+            if(gamepad1.dpad_down)
+            {
+                move(0, (2/3), 0);
+            }
+            if(gamepad1.dpad_left)
+            {
+                move(-(2/3), 0, 0);
+            }
+            if(gamepad1.dpad_right)
+            {
+                move((2/3), 0, 0);
+            }
+            if((gamepad1.right_bumper || gamepad1.left_bumper) && outtake.getPower() == 0)
+            {
+                if(gamepad1.right_bumper)
+                {
+                    outtake(true);
+                } else
+                {
+                    outtake(false);
+                }
+            } else if((gamepad1.right_bumper || gamepad1.left_bumper) && outtake.getPower() != 0)
             {
                 outtake.setPower(0);
             }
@@ -44,17 +67,25 @@ public class TeleOp15118 extends LinearOpMode
                 sleep(250);
                 intakeSweeper.setPosition(0.5);
             }
-            if(gamepad1.x)
+            if(gamepad1.x && !raised && clicked == false)
             {
-                if(raised)
-                {
-                    intakeRaiser.setPosition(-1);
-                    raised = false;
-                } else
-                {
-                    intakeRaiser.setPosition(1);
-                    raised = true;
-                }
+                intakeRaiser.setPosition(1);
+                clicked = true;
+                raised = true;
+            }
+            if(gamepad1.x && raised && clicked == false)
+            {
+                intakeRaiser.setPosition(-1);
+                raised = false;
+                clicked = true;
+            }
+            if (!gamepad1.x)
+            {
+                clicked = false;
+            }
+            if(gamepad1.left_stick_x == 0 || gamepad1.left_stick_y == 0 || gamepad1.right_stick_x == 0)
+            {
+                move(0, 0,0);
             }
         }
     }
@@ -73,21 +104,20 @@ public class TeleOp15118 extends LinearOpMode
         intakeSweeper = hardwareMap.get(Servo.class, "intake_sweeper");
 
         br.setDirection(DcMotorSimple.Direction.REVERSE);
+        outtake.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void move(double strafe, double forward, double turn)
     {
-        while(gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)
-        {
-            fl.setPower(forward + turn + strafe);
-            fr.setPower(forward - turn - strafe);
-            bl.setPower(forward + turn - strafe);
-            br.setPower(forward - turn + strafe);
-        }
-        fl.setPower(0);
-        fr.setPower(0);
-        bl.setPower(0);
-        br.setPower(0);
+        forward *= -1;
+        strafe *= 0.75;
+        forward *= 0.75;
+        turn *= 0.75;
+
+        fl.setPower(forward + turn + strafe);
+        fr.setPower(forward - turn - strafe);
+        bl.setPower(forward + turn - strafe);
+        br.setPower(forward - turn + strafe);
     }
 
     public void intake()
@@ -107,8 +137,19 @@ public class TeleOp15118 extends LinearOpMode
         }
     }
 
-    public void outtake()
+    public void outtake(boolean power)
     {
-        outtake.setPower(1);
+        if(power)
+        {
+            outtake.setPower(1);
+        } else
+        {
+            outtake.setPower(0.75);
+        }
+    }
+
+    public void lift()
+    {
+
     }
 }
