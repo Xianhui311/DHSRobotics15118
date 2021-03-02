@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "TeleOp 15118", group = "15118")
-public class TeleOp15118 extends LinearOpMode
+public class TeleOp151182Driver extends LinearOpMode
 {
     ElapsedTime timer;
     DcMotor fl, fr, bl, br, intake, outtake, wa;
@@ -16,7 +16,7 @@ public class TeleOp15118 extends LinearOpMode
 
     boolean clasped = false;
     boolean armRaised = false;
-    boolean boxRaised = false;
+    boolean raised = false;
     boolean clicked = false;
 
     @Override
@@ -47,25 +47,51 @@ public class TeleOp15118 extends LinearOpMode
             {
                 move(.5, 0, 0);
             }
-            if(gamepad1.b)
+            if(gamepad2.b)
             {
-                if(outtake.getPower() == 0.9)
-                {
-                    outtake.setPower(0);
-                } else
+                if(outtake.getPower() == 0)
                 {
                     outtake(true);
-                }
-            }
-            if(gamepad1.y)
-            {
-                if(outtake.getPower() == 0.75)
-                {
-                    outtake.setPower(0);
                 } else
                 {
-                    outtake(false);
+                    outtake.setPower(0);
                 }
+            }
+            if(gamepad2.y)
+            {
+                if(outtake.getPower() == 0)
+                {
+                    outtake(false);
+                } else
+                {
+                    outtake.setPower(0);
+                }
+            }
+            if(gamepad1.right_trigger != 0 || gamepad1.left_trigger != 0)
+            {
+                intake();
+            }
+            if(gamepad2.a)
+            {
+                intakeSweeper.setPosition(-1);
+                sleep(250);
+                intakeSweeper.setPosition(0.5);
+            }
+            if(gamepad2.x && !raised && clicked == false)
+            {
+                intakeRaiser.setPosition(1);
+                clicked = true;
+                raised = true;
+            }
+            if(gamepad2.x && raised && clicked == false)
+            {
+                intakeRaiser.setPosition(-1);
+                raised = false;
+                clicked = true;
+            }
+            if (!gamepad2.x)
+            {
+                clicked = false;
             }
             if(gamepad1.right_bumper)
             {
@@ -100,32 +126,6 @@ public class TeleOp15118 extends LinearOpMode
                     clasp.setPosition(1);
                 }
                 clasped = !clasped;
-            }
-            if(gamepad1.right_trigger != 0 || gamepad1.left_trigger != 0)
-            {
-                intake();
-            }
-            if(gamepad1.a)
-            {
-                intakeSweeper.setPosition(-1);
-                sleep(250);
-                intakeSweeper.setPosition(0.5);
-            }
-            if(gamepad1.x && !boxRaised && clicked == false)
-            {
-                intakeRaiser.setPosition(1);
-                clicked = true;
-                boxRaised = true;
-            }
-            if(gamepad1.x && boxRaised && clicked == false)
-            {
-                intakeRaiser.setPosition(-1);
-                boxRaised = false;
-                clicked = true;
-            }
-            if (!gamepad1.x)
-            {
-                clicked = false;
             }
             if(gamepad1.left_stick_x == 0 || gamepad1.left_stick_y == 0 || gamepad1.right_stick_x == 0)
             {

@@ -36,15 +36,17 @@ public class Autonomous15118 extends TeleOp15118 {
 
         waitForStart();
 
+        telemetry.addData("Frame Count", webcam.getFrameCount());
+        telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
+        telemetry.addData("Total Frame Time ms", webcam.getTotalFrameTimeMs());
+        telemetry.addData("Pipeline Time ms", webcam.getPipelineTimeMs());
+        telemetry.addData("Overhead Time ms", webcam.getOverheadTimeMs());
+        telemetry.addData("Theoretical Max FPS", webcam.getCurrentPipelineMaxFps());
+        telemetry.update();
+
         while(opModeIsActive())
         {
-            telemetry.addData("Frame Count", webcam.getFrameCount());
-            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
-            telemetry.addData("Total Frame Time ms", webcam.getTotalFrameTimeMs());
-            telemetry.addData("Pipeline Time ms", webcam.getPipelineTimeMs());
-            telemetry.addData("Overhead Time ms", webcam.getOverheadTimeMs());
-            telemetry.addData("Theoretical Max FPS", webcam.getCurrentPipelineMaxFps());
-            telemetry.update();
+
         }
     }
     public void park()
@@ -53,6 +55,12 @@ public class Autonomous15118 extends TeleOp15118 {
         {
             super.move(0, -1, 0);
         }
+    }
+
+    public void shoot()
+    {
+        intakeRaiser.setPosition(1);
+        outtake.setPower(0.9);
     }
 
     class AutoPipeline extends OpenCvPipeline
