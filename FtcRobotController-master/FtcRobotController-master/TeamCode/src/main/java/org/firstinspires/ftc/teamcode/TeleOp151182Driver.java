@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "TeleOp 15118", group = "15118")
+@TeleOp(name = "TeleOp 15118 2 Driver", group = "15118")
 public class TeleOp151182Driver extends LinearOpMode
 {
     ElapsedTime timer;
@@ -15,7 +15,6 @@ public class TeleOp151182Driver extends LinearOpMode
     Servo intakeSweeper, intakeRaiser, clasp;
 
     boolean clasped = false;
-    boolean armRaised = false;
     boolean raised = false;
     boolean clicked = false;
 
@@ -77,13 +76,13 @@ public class TeleOp151182Driver extends LinearOpMode
                 sleep(250);
                 intakeSweeper.setPosition(0.5);
             }
-            if(gamepad2.x && !raised && clicked == false)
+            if(gamepad2.x && !raised && !clicked)
             {
                 intakeRaiser.setPosition(1);
                 clicked = true;
                 raised = true;
             }
-            if(gamepad2.x && raised && clicked == false)
+            if(gamepad2.x && raised && !clicked)
             {
                 intakeRaiser.setPosition(-1);
                 raised = false;
@@ -93,30 +92,19 @@ public class TeleOp151182Driver extends LinearOpMode
             {
                 clicked = false;
             }
+            if(gamepad1.left_bumper)
+            {
+                wa.setPower(0.25);
+            }
             if(gamepad1.right_bumper)
             {
-                if(armRaised)
-                {
-                    wa.setDirection(DcMotorSimple.Direction.REVERSE);
-                    wa.setPower(1);
-                    for(double i = timer.seconds(); i < i + 1;)
-                    {
-
-                    }
-                    wa.setPower(0);
-                } else
-                {
-                    wa.setDirection(DcMotorSimple.Direction.FORWARD);
-                    wa.setPower(1);
-                    for(double i = timer.seconds(); i < i + 1;)
-                    {
-
-                    }
-                    wa.setPower(0);
-                }
-                armRaised = !armRaised;
+                wa.setPower(-0.20);
             }
-            if(gamepad1.left_bumper)
+            if(gamepad1.start)
+            {
+                wa.setPower(0);
+            }
+            if(gamepad1.back)
             {
                 if(clasped)
                 {
@@ -125,6 +113,7 @@ public class TeleOp151182Driver extends LinearOpMode
                 {
                     clasp.setPosition(1);
                 }
+                sleep(100);
                 clasped = !clasped;
             }
             if(gamepad1.left_stick_x == 0 || gamepad1.left_stick_y == 0 || gamepad1.right_stick_x == 0)
@@ -166,18 +155,6 @@ public class TeleOp151182Driver extends LinearOpMode
         br.setPower(forward - turn + strafe);
     }
 
-    public void gradientStop()
-    {
-        for(int i = 0; i < 3; i++)
-        {
-            fl.setPower(fl.getPower()/3);
-            fr.setPower(fr.getPower()/3);
-            bl.setPower(bl.getPower()/3);
-            br.setPower(br.getPower()/3);
-        }
-        move(0, 0, 0);
-    }
-
     public void intake()
     {
         //CHANGE THE POWER OF THE INTAKE HERE
@@ -204,10 +181,5 @@ public class TeleOp151182Driver extends LinearOpMode
         {
             outtake.setPower(0.75);
         }
-    }
-
-    public void lift()
-    {
-
     }
 }
